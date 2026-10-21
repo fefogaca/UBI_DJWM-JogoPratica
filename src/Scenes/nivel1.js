@@ -1,11 +1,15 @@
+import { ScoreManager } from '../Scripts/ScoreManager.js';
+import './hud.css';
 import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier2d-compat';
 import GUI from 'lil-gui';
+import { criarMoeda } from '../Prefabs/coin.js';
+
 // import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { criarSprite } from '../Materials/sprite.js';
 import { criarPlataforma } from '../Prefabs/plataforma.js';
 import { criarBackground } from '../Prefabs/background.js';
-import { adicionarRigidbody, sincronizarFisica, adicionarBoxCollider } from '../Scripts/Fisica.js';
+import { adicionarRigidbody, sincronizarFisica, adicionarBoxCollider, tratarColisoes } from '../Scripts/Fisica.js';
 import { DebugFisica } from '../Scripts/DebugFisica.js';
 import { Player } from '../Scripts/Player.js';
 
@@ -58,6 +62,11 @@ for (const plataforma of chao.children) {
     adicionarBoxCollider(fisica, plataforma);
 }
 
+const moeda1 = await criarMoeda(fisica, 1.2, -2.2);
+const moeda2 = await criarMoeda(fisica, -5.5, 2.2);
+const moeda3 = await criarMoeda(fisica, 5.5, 2.2);
+mundo.add(moeda1, moeda2, moeda3);
+
 const player = await criarSprite('assets/Sprites/Player/Idle (1).png');
 player.name = 'Player';
 player.scale.set(0.5, 0.5, 1);
@@ -77,7 +86,11 @@ mostrarHierarquia(scene);
 
 
 const playerScript = new Player(player);
-const scripts = [new DebugFisica(scene, fisica), playerScript];
+const scripts = [
+    new DebugFisica(scene, fisica),
+    playerScript,
+    new ScoreManager(document.querySelector('#scoreValue')),
+];
 
 const gui = new GUI({ title: 'Inspector' });
 gui.add(playerScript, 'movementSpeed', 0, 10, 0.1).name('Velocidade');
@@ -89,7 +102,7 @@ let tempoAnterior = performance.now();
 
 for (const script of scripts) script.start?.();
 
-
+const eventos = new RAPIER.EventQueue(true);
 renderer.setAnimationLoop((agora) => {
     const dt = Math.min((agora - tempoAnterior) / 1000, 0.1);
     tempoAnterior = agora;
@@ -99,7 +112,8 @@ renderer.setAnimationLoop((agora) => {
     acumulador += dt;
     while (acumulador >= PASSO_FIXO) {
         for (const script of scripts) script.fixedUpdate?.();
-        fisica.step();
+        fisica.step(eventos);
+        tratarColisoes(fisica, eventos);
         acumulador -= PASSO_FIXO;
     }
 

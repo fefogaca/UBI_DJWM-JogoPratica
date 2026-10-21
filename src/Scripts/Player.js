@@ -8,6 +8,7 @@ export class Player {
 
     constructor(object) {
         this.object = object;
+        this.object.userData.script = this;
     }
 
     start() {

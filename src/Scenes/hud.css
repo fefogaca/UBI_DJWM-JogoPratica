@@ -1,0 +1,29 @@
+html {
+    font-size: min(100vw / 120, 100vh / 67.5);
+}
+
+#hud {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    font-family: sans-serif;
+    font-size: 2rem;
+    color: white;
+}
+
+#scoreTitle {
+    position: absolute;
+    left: 2rem;
+    top: 1.5rem;
+    width: 10rem;
+    height: 3rem;
+}
+
+#scoreValue {
+    position: absolute;
+    left: 9rem;
+    top: 1.5rem;
+    width: 10rem;
+    height: 3rem;
+}
