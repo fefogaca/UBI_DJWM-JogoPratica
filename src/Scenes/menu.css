@@ -1,0 +1,48 @@
+html {
+    font-size: min(calc(100vw / 120), calc(100vh / 67.5));
+}
+
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+#gui {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: #314d79;
+}
+
+#gui h1 {
+    margin: 0 0 1rem;
+    color: white;
+    font-size: 2rem;
+}
+
+#gui button {
+    width: 10rem;
+    height: 1.875rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.despedida-ativa {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    background: #314d79;
+}
+
+@media (max-width: 700px) {
+    html {
+        font-size: 16px;
+    }
+}

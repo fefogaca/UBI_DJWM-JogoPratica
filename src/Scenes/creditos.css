@@ -1,0 +1,47 @@
+body {
+    color: white;
+    background: #314d79;
+}
+
+.credits {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.credits__panel {
+    width: min(32rem, 100%);
+}
+
+.credits__back {
+    color: white;
+}
+
+.credits h1 {
+    margin: 2rem 0 0.5rem;
+    font-size: 2rem;
+}
+
+.credits h2 {
+    margin: 0 0 2rem;
+    font-size: 1.25rem;
+    font-weight: normal;
+}
+
+.credits__list {
+    margin: 0;
+}
+
+.credits__list div {
+    margin-bottom: 1rem;
+}
+
+.credits dt {
+    font-weight: bold;
+}
+
+.credits dd {
+    margin: 0.25rem 0 0;
+}
