@@ -10,6 +10,7 @@ export default defineConfig({
                 menu: resolve(import.meta.dirname, 'index.html'),
                 nivel1: resolve(import.meta.dirname, 'nivel1.html'),
                 creditos: resolve(import.meta.dirname, 'creditos.html'),
+                gameover: resolve(import.meta.dirname, 'gameover.html'),
             },
         },
     },

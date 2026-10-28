@@ -9,7 +9,7 @@ export class CoinPickup {
     constructor(object) {
         this.object = object;
         this.object.userData.script = this;
-        this.#coinPickupEffect = new Audio('assets/Sounds/TreasurePickup.mp3');
+        this.#coinPickupEffect = new Audio('assets/Sons/apanharTesouro.mp3');
     }
 
     onTriggerEnter(other) {

@@ -4,7 +4,7 @@ import { criarSprite } from '../Materials/sprite.js';
 export async function criarBackground(x, y) {
     const fundos = new THREE.Group();
 
-    const bg = await criarSprite('assets/Sprites/Objects/BG.png');
+    const bg = await criarSprite('assets/Imagens/Objetos/fundo.png');
     bg.name = 'BG_0';
 
     const bgEsquerda = bg.clone();

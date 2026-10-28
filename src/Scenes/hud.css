@@ -24,6 +24,20 @@ html {
     position: absolute;
     left: 9rem;
     top: 1.5rem;
-    width: 10rem;
+    width: 6rem;
     height: 3rem;
+}
+
+#lives {
+    position: absolute;
+    left: 16rem;
+    top: 1.2rem;
+    display: flex;
+    gap: 0.4rem;
+}
+
+#lives .life {
+    width: 2.8rem;
+    height: 2.2rem;
+    object-fit: contain;
 }
