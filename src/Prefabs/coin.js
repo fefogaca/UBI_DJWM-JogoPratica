@@ -8,7 +8,7 @@ export async function criarMoeda(fisica, x, y) {
     moeda.name = 'Coin';
     moeda.position.set(x, y, 0);
 
-    const imagem = await criarSprite('assets/Sprites/Objects/coin.png');
+    const imagem = await criarSprite('assets/Imagens/Objetos/moeda.png');
     imagem.name = 'CoinImage';
     imagem.position.set(0, 0, 1.5);
     // ajuste das moedas para o tamanho correto
