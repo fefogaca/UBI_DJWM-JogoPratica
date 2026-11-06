@@ -14,6 +14,14 @@ import { adicionarRigidbody, sincronizarFisica, adicionarBoxCollider, tratarColi
 import { DebugFisica } from '../Scripts/DebugFisica.js';
 import { Player } from '../Scripts/Player.js';
 import { MainCamera } from '../Scripts/MainCamera.js';
+import { GameManager } from '../Scripts/GameManager.js';
+import { Level1Manager } from '../Scripts/Level1Manager.js';
+import { SceneManager } from '../Scripts/SceneManager.js';
+import { Time } from '../Scripts/Time.js';
+import { criarLimite } from '../Prefabs/limite.js';
+import { criarNuvem1 } from '../Prefabs/nuvem1.js';
+import { criarNuvem2 } from '../Prefabs/nuvem2.js';
+import { criarCheckpoint } from '../Prefabs/checkpoint.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -69,14 +77,8 @@ for (const plataforma of chao.children) {
     adicionarBoxCollider(fisica, plataforma);
 }
 
-const limite = await criarSprite('assets/Imagens/Objetos/blocoDePedra.png');
-limite.name = 'Limit';
-limite.userData.tag = 'limit';
-limite.position.set(0, -7.2, 1);
-limite.scale.set(40, 0.45, 1);
-limite.visible = false;
+const limite = await criarLimite(fisica, 0, -7.2);
 mundo.add(limite);
-adicionarBoxCollider(fisica, limite);
 
 const moedas = [
     [0, -2.15],
@@ -103,10 +105,18 @@ const decoracoes = [
     await criarDecoracao('assets/Imagens/Objetos/pedra.png', 'Pedra', -11.7, sobrePlataforma(1.4, 0.73, 0.6), 0.6, 1.2),
     await criarDecoracao('assets/Imagens/Objetos/esqueleto.png', 'Esqueleto', 1.35, sobrePlataforma(3.2, 0.51, 0.85), 0.85, 1.2),
     await criarDecoracao('assets/Imagens/Objetos/seta.png', 'Seta', 5, sobrePlataforma(-1.2, 0.87, 0.55), 0.55, 1.2),
-    await criarDecoracao('assets/Imagens/Objetos/nuvem1.png', 'Nuvem1', -9, 6.4, 0.32, 0.2),
-    await criarDecoracao('assets/Imagens/Objetos/nuvem2.png', 'Nuvem2', 8, 4.4, 0.28, 0.2),
 ];
 mundo.add(...decoracoes);
+
+// checkpoint na plataforma da direita
+const checkpoint = await criarCheckpoint(fisica, 11.8, sobrePlataforma(1.4, 0.88));
+mundo.add(checkpoint);
+
+// sítio onde aparecem as nuvens
+const level1Manager = new THREE.Group();
+level1Manager.name = 'Level1Manager';
+level1Manager.position.set(-6, 3.5, 0);
+scene.add(level1Manager);
 
 const player = await criarSprite('assets/Imagens/Jogador/parado1.png');
 player.name = 'Player';
@@ -127,19 +137,44 @@ mostrarHierarquia(scene);
 
 
 const playerScript = new Player(player);
+playerScript.lifeImages = [...document.querySelectorAll('#lives img')];
+
+const gameManager = new GameManager();
+gameManager.pauseMenu = document.querySelector('#pauseMenu');
+gameManager.music = new Audio('assets/Sons/musicaDeFundo.mp3');
+gameManager.music.volume = 0.4;
+
 const scripts = [
     new DebugFisica(scene, fisica),
     playerScript,
     new ScoreManager(document.querySelector('#scoreValue')),
     new MainCamera(camera, scene),
+    gameManager,
 ];
+
+const level1Script = new Level1Manager(level1Manager, scene, scripts);
+level1Script.cloudPrefab1 = criarNuvem1;
+level1Script.cloudPrefab2 = criarNuvem2;
+scripts.push(level1Script);
+
+document.querySelector('#btnResume').addEventListener('click', (evento) => {
+    evento.currentTarget.blur(); // tira o foco do botão por causa do Espaço
+    gameManager.resumeGame();
+});
+document.querySelector('#btnMenu').addEventListener('click', () => {
+    SceneManager.loadScene('index');
+});
 
 // inspector gui
 const gui = new GUI({ title: 'Inspector' });
 gui.add(playerScript, 'movementSpeed', 0, 10, 0.1).name('Velocidade');
 gui.add(playerScript, 'jumpPower', 0, 100, 1).name('Força do salto');
+gui.add(gameManager, 'isPaused')
+    .name('Em pausa')
+    .listen()
+    .onChange((pausado) => (pausado ? gameManager.pauseGame() : gameManager.resumeGame()));
 
-const PASSO_FIXO = 1 / 50; 
+const PASSO_FIXO = 1 / 50; // 50 vezes por segundo
 fisica.timestep = PASSO_FIXO;
 let acumulador = 0;
 let tempoAnterior = performance.now();
@@ -148,14 +183,15 @@ for (const script of scripts) script.start?.();
 
 const eventos = new RAPIER.EventQueue(true);
 renderer.setAnimationLoop((agora) => {
-    const dt = Math.min((agora - tempoAnterior) / 1000, 0.1);
+    // com timeScale a 0 o tempo para
+    const dt = Math.min((agora - tempoAnterior) / 1000, 0.1) * Time.timeScale;
     tempoAnterior = agora;
 
     for (const script of scripts) script.update?.(dt);
 
     acumulador += dt;
     while (acumulador >= PASSO_FIXO) {
-        for (const script of scripts) script.fixedUpdate?.();
+        for (const script of scripts) script.fixedUpdate?.(PASSO_FIXO);
         fisica.step(eventos);
         tratarColisoes(fisica, eventos);
         acumulador -= PASSO_FIXO;
