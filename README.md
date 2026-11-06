@@ -2,7 +2,7 @@
 
 # Desert Run
 
-Jogo de plataformas 2D no browser. O Three.js desenha a cena, o Rapier trata da física e o Vite serve as páginas: menu, nível e créditos.
+Jogo de plataformas 2D no browser. O Three.js desenha a cena, o Rapier trata da física e o Vite serve as páginas: menu, nível, créditos e fim de jogo.
 
 ## Contexto
 
@@ -23,18 +23,22 @@ Para gerar a versão estática: `npm run build` e `npm run preview`.
 
 ## Jogar
 
-Move com **A** / **D** ou com as setas. Cada moeda vale 10 pontos. A pontuação fica no `localStorage` e volta a 0 quando se começa um jogo novo pelo menu. As moedas por cima das plataformas laterais ainda não se apanham: o salto fica para a ficha seguinte.
+Move com **A** / **D** ou com as setas e salta com **Espaço** (dá para fazer salto duplo). **Esc** pausa o jogo e abre o menu de pausa; a música também para.
+
+Cada moeda vale 10 pontos e a pontuação fica no `localStorage` (volta a 0 quando se começa um jogo novo pelo menu). Há 3 vidas: cair do mapa tira uma e o jogador volta à última plataforma que pisou, ou à placa de checkpoint se já lhe tiver tocado. Sem vidas, vai para o ecrã de fim de jogo.
 
 ## Estrutura
 
 | Ficheiro | Responsabilidade |
 |---|---|
-| `index.html`, `nivel1.html`, `creditos.html` | Uma cena por página |
+| `index.html`, `nivel1.html`, `creditos.html`, `gameover.html` | Uma cena por página |
 | `src/Scripts/SceneManager.js` | Troca de cena |
-| `src/Scripts/Player.js`, `Input.js` | Movimento do jogador |
+| `src/Scripts/Player.js`, `Input.js` | Movimento, vidas, respawn e checkpoint |
+| `src/Scripts/GameManager.js`, `Time.js` | Pausa, menu de pausa e música |
+| `src/Scripts/Level1Manager.js`, `Clouds.js` | Cria as nuvens a partir dos prefabs e mexe-as |
 | `src/Scripts/Fisica.js` | Corpos, colisões e sensores (Rapier) |
 | `src/Scripts/ScoreManager.js`, `CoinPickup.js` | Pontuação e moedas |
-| `src/Prefabs/` | Fundo, plataformas e moeda |
+| `src/Prefabs/` | Fundo, plataformas, moeda, nuvens, limite e checkpoint |
 | `public/assets/` | Sprites e sons |
 
 ## Autor

@@ -28,6 +28,7 @@ export const Input = {
     // devolve true enquanto o botão estiver pressionado
     getButton(button) {
         if (button === 'Jump') return premida('Space');
+        if (button === 'Pause') return premida('Escape');
         return false;
     },
 };
