@@ -3,6 +3,7 @@ import { SceneManager } from './SceneManager.js';
 import { Time } from './Time.js';
 
 const CORACAO_VAZIO = 'assets/Imagens/Objetos/coracaoVazio.svg';
+const TEMPO_MORTE = 1.2; // segundos da animação de morrer antes do respawn
 
 export class Player {
     #playerRb;
@@ -12,6 +13,9 @@ export class Player {
     #jumpPressed = false;
     #lastPlatform = null;
     #checkpoint = null;
+    #myAnimation;
+    #isDead = false;
+    #deadTime = 0;
     movementSpeed = 3;
     jumpPower = 40;
     lives = 3;
@@ -33,9 +37,10 @@ export class Player {
         this.#canDoubleJump = false;
         this.#playerRb.lockRotations(true, true);
         this.#playerRb.setRotation(0, true);
+        this.#myAnimation = this.object.userData.animator;
     }
 
-    update() {
+    update(dt) {
         const jump = Input.getButton('Jump');
 
         // em pausa ignora o teclado, senão salta quando o jogo continua
@@ -45,7 +50,17 @@ export class Player {
             return;
         }
 
-        this.#horizontal = Input.getAxis('Horizontal');
+        if (this.#isDead) {
+            this.#horizontal = 0;
+            this.#jumpPressed = jump;
+            this.#deadTime += dt;
+            if (this.#deadTime >= TEMPO_MORTE) this.#voltarAVida();
+            return;
+        }
+
+        // com o Shift anda mais devagar
+        const andar = Input.getButton('Walk') ? 0.5 : 1;
+        this.#horizontal = Input.getAxis('Horizontal') * andar;
 
         if (jump && !this.#jumpPressed) {
             if (this.#grounded) {
@@ -84,9 +99,21 @@ export class Player {
     }
 
     #perderVida() {
+        if (this.#isDead) return;
+
         this.lives -= 1;
         const imagem = this.lifeImages[this.lives];
         if (imagem) imagem.src = CORACAO_VAZIO;
+
+        // primeiro mostra a animação de morrer, o respawn fica para o update
+        this.#isDead = true;
+        this.#deadTime = 0;
+        this.#myAnimation.setFloat('isDead', 1);
+    }
+
+    #voltarAVida() {
+        this.#isDead = false;
+        this.#myAnimation.setFloat('isDead', 0);
 
         if (this.lives === 0) {
             SceneManager.loadScene('gameover');
@@ -121,5 +148,11 @@ export class Player {
             },
             true,
         );
+
+        // se está a cair já não está no chão (ex.: saiu da plataforma a andar)
+        if (velocidadeAtual.y < -1) this.#grounded = false;
+
+        this.#myAnimation.setFloat('speed', Math.abs(this.#horizontal));
+        this.#myAnimation.setFloat('verticalSpeed', this.#grounded ? 0 : Math.abs(velocidadeAtual.y));
     }
 }

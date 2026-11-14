@@ -22,6 +22,8 @@ import { criarLimite } from '../Prefabs/limite.js';
 import { criarNuvem1 } from '../Prefabs/nuvem1.js';
 import { criarNuvem2 } from '../Prefabs/nuvem2.js';
 import { criarCheckpoint } from '../Prefabs/checkpoint.js';
+import { playerController } from '../Animation/playerController.js';
+import { Animator } from '../Scripts/Animator.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -139,6 +141,8 @@ mostrarHierarquia(scene);
 const playerScript = new Player(player);
 playerScript.lifeImages = [...document.querySelectorAll('#lives img')];
 
+const playerAnimator = new Animator(player, playerController);
+
 const gameManager = new GameManager();
 gameManager.pauseMenu = document.querySelector('#pauseMenu');
 gameManager.music = new Audio('assets/Sons/musicaDeFundo.mp3');
@@ -147,6 +151,7 @@ gameManager.music.volume = 0.4;
 const scripts = [
     new DebugFisica(scene, fisica),
     playerScript,
+    playerAnimator,
     new ScoreManager(document.querySelector('#scoreValue')),
     new MainCamera(camera, scene),
     gameManager,
@@ -173,6 +178,8 @@ gui.add(gameManager, 'isPaused')
     .name('Em pausa')
     .listen()
     .onChange((pausado) => (pausado ? gameManager.pauseGame() : gameManager.resumeGame()));
+gui.add(playerAnimator, 'currentState').name('Estado').listen();
+gui.add(playerAnimator.parameters, 'speed', 0, 1, 0.01).listen();
 
 const PASSO_FIXO = 1 / 50; // 50 vezes por segundo
 fisica.timestep = PASSO_FIXO;
