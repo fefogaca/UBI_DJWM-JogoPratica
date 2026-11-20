@@ -24,6 +24,10 @@ import { criarNuvem2 } from '../Prefabs/nuvem2.js';
 import { criarCheckpoint } from '../Prefabs/checkpoint.js';
 import { playerController } from '../Animation/playerController.js';
 import { Animator } from '../Scripts/Animator.js';
+import { criarInimigo } from '../Prefabs/inimigo.js';
+import { criarEspinho } from '../Prefabs/espinho.js';
+import { criarPontoPatrulha } from '../Prefabs/pontoPatrulha.js';
+import { criarNuvemBoa } from '../Prefabs/nuvemBoa.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -105,7 +109,6 @@ const decoracoes = [
     await criarDecoracao('assets/Imagens/Objetos/relva1.png', 'RelvaEsquerda', -5.15, sobrePlataforma(-1.2, 0.5, 0.8), 0.8, 1.2),
     await criarDecoracao('assets/Imagens/Objetos/relva2.png', 'RelvaDireita', 7.4, sobrePlataforma(-1.2, 0.5, 0.8), 0.8, 1.2),
     await criarDecoracao('assets/Imagens/Objetos/pedra.png', 'Pedra', -11.7, sobrePlataforma(1.4, 0.73, 0.6), 0.6, 1.2),
-    await criarDecoracao('assets/Imagens/Objetos/esqueleto.png', 'Esqueleto', 1.35, sobrePlataforma(3.2, 0.51, 0.85), 0.85, 1.2),
     await criarDecoracao('assets/Imagens/Objetos/seta.png', 'Seta', 5, sobrePlataforma(-1.2, 0.87, 0.55), 0.55, 1.2),
 ];
 mundo.add(...decoracoes);
@@ -113,6 +116,39 @@ mundo.add(...decoracoes);
 // checkpoint na plataforma da direita
 const checkpoint = await criarCheckpoint(fisica, 11.8, sobrePlataforma(1.4, 0.88));
 mundo.add(checkpoint);
+
+// Inimigos. Os pontos de patrulha são filhos da plataforma e só entram depois dos
+// colliders estarem feitos, senão a caixa da plataforma ficava maior
+const plat3 = chao.getObjectByName('Plat3');
+const plat3Ponto1 = criarPontoPatrulha('Checkpoint1', -1.6, 0.9);
+const plat3Ponto2 = criarPontoPatrulha('Checkpoint2', 1.6, 0.9);
+plat3.add(plat3Ponto1, plat3Ponto2);
+
+const enemy1 = await criarInimigo(fisica, 6.2, sobrePlataforma(-1.2, 0.51));
+enemy1.userData.script.checkpoint1 = plat3Ponto1;
+enemy1.userData.script.checkpoint2 = plat3Ponto2;
+mundo.add(enemy1);
+
+const plat6 = chao.getObjectByName('Plat6');
+const plat6Ponto1 = criarPontoPatrulha('Checkpoint1', -1.6, 0.9);
+const plat6Ponto2 = criarPontoPatrulha('Checkpoint2', 1.6, 0.9);
+plat6.add(plat6Ponto1, plat6Ponto2);
+
+const enemy2 = await criarInimigo(fisica, 0.8, sobrePlataforma(3.2, 0.51));
+enemy2.userData.script.checkpoint1 = plat6Ponto1;
+enemy2.userData.script.checkpoint2 = plat6Ponto2;
+enemy2.userData.script.speed = 1.5;
+mundo.add(enemy2);
+
+// espinho a subir e descer no buraco entre a Plat1 e a Plat3
+const espinhoBaixo = criarPontoPatrulha('SpikeBaixo', 3.1, -4.2);
+const espinhoCima = criarPontoPatrulha('SpikeCima', 3.1, 0.6);
+mundo.add(espinhoBaixo, espinhoCima);
+
+const espinho = await criarEspinho(fisica, 3.1, -1.8);
+espinho.userData.script.checkpoint1 = espinhoBaixo;
+espinho.userData.script.checkpoint2 = espinhoCima;
+mundo.add(espinho);
 
 // sítio onde aparecem as nuvens
 const level1Manager = new THREE.Group();
@@ -122,12 +158,15 @@ scene.add(level1Manager);
 
 const player = await criarSprite('assets/Imagens/Jogador/parado1.png');
 player.name = 'Player';
+player.userData.tag = 'player';
+// o boneco não está ao centro da imagem, assim fica e pode virar sem sair do collider
+player.geometry.translate(player.geometry.parameters.width * 0.22, 0, 0);
 player.scale.set(0.5, 0.5, 1);
 player.position.set(0, 0, 2);
 scene.add(player);
 
 adicionarRigidbody(fisica, player);
-adicionarBoxCollider(fisica, player, 0.54, 0.83, -0.22, 0.02);
+adicionarBoxCollider(fisica, player, 0.54, 0.83, 0, 0.02);
 
 function mostrarHierarquia(objeto, nivel = 0) {
     console.log('  '.repeat(nivel) + (objeto.name || objeto.type));
@@ -155,11 +194,15 @@ const scripts = [
     new ScoreManager(document.querySelector('#scoreValue')),
     new MainCamera(camera, scene),
     gameManager,
+    enemy1.userData.script,
+    enemy2.userData.script,
+    espinho.userData.script,
 ];
 
 const level1Script = new Level1Manager(level1Manager, scene, scripts);
 level1Script.cloudPrefab1 = criarNuvem1;
 level1Script.cloudPrefab2 = criarNuvem2;
+level1Script.goodCloudPrefab = (x, y) => criarNuvemBoa(fisica, x, y);
 scripts.push(level1Script);
 
 document.querySelector('#btnResume').addEventListener('click', (evento) => {

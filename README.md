@@ -27,6 +27,8 @@ Move com **A** / **D** ou com as setas e salta com **Espaço** (dá para fazer s
 
 Cada moeda vale 10 pontos e a pontuação fica no `localStorage` (volta a 0 quando se começa um jogo novo pelo menu). Há 3 vidas: cair do mapa tira uma e o jogador volta à última plataforma que pisou, ou à placa de checkpoint se já lhe tiver tocado. Sem vidas, vai para o ecrã de fim de jogo.
 
+Os esqueletos patrulham as plataformas: tocar-lhes de lado tira uma vida, saltar-lhes em cima mata-os (+20 pontos). O espinho no buraco entre as primeiras plataformas sobe e desce e não se pode pisar. A nuvem pequena larga uma caixa quando passa por cima do jogador.
+
 ## Estrutura
 
 | Ficheiro | Responsabilidade |
@@ -37,9 +39,11 @@ Cada moeda vale 10 pontos e a pontuação fica no `localStorage` (volta a 0 quan
 | `src/Scripts/Animator.js`, `src/Animation/` | Animações do jogador (parado, andar, correr, saltar, morrer) |
 | `src/Scripts/GameManager.js`, `Time.js` | Pausa, menu de pausa e música |
 | `src/Scripts/Level1Manager.js`, `Clouds.js` | Cria as nuvens a partir dos prefabs e mexe-as |
-| `src/Scripts/Fisica.js` | Corpos, colisões e sensores (Rapier) |
+| `src/Scripts/Enemy.js`, `VerticalEnemy.js` | Inimigos que patrulham entre dois pontos |
+| `src/Scripts/CloudSpawnBoxes.js` | Raycast da nuvem boa e caixas |
+| `src/Scripts/Fisica.js` | Corpos, colisões, sensores e raycast (Rapier) |
 | `src/Scripts/ScoreManager.js`, `CoinPickup.js` | Pontuação e moedas |
-| `src/Prefabs/` | Fundo, plataformas, moeda, nuvens, limite e checkpoint |
+| `src/Prefabs/` | Fundo, plataformas, moeda, nuvens, limite, checkpoint, inimigos e caixa |
 | `public/assets/` | Sprites e sons |
 
 ## Autor

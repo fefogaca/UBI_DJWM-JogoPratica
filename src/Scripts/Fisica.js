@@ -20,6 +20,16 @@ export function adicionarRigidbody(fisica, objeto, massa = 1) {
     return corpo;
 }
 
+// cinemático: a gravidade e as colisões não lhe mexem, quem o move é o script
+export function adicionarRigidbodyCinematico(fisica, objeto) {
+    const descricao = RAPIER.RigidBodyDesc.kinematicPositionBased()
+        .setTranslation(objeto.position.x, objeto.position.y);
+
+    const corpo = fisica.createRigidBody(descricao);
+    objeto.userData.rigidBody = corpo;
+    return corpo;
+}
+
 export function adicionarBoxCollider(fisica, objeto, ajusteX = 1, ajusteY = 1, deslocX = 0, deslocY = 0) {
     const caixa = new THREE.Box3().setFromObject(objeto);
     const tamanho = caixa.getSize(new THREE.Vector3());
@@ -88,7 +98,21 @@ export function destruirObjeto(objeto) {
         objeto.userData.physics.removeCollider(collider, false);
         objeto.userData.collider = null;
     }
+    const corpo = objeto.userData.rigidBody;
+    if (corpo) {
+        objeto.userData.physics.removeRigidBody(corpo);
+        objeto.userData.rigidBody = null;
+    }
     objeto.removeFromParent();
+}
+
+// dispara um raio a partir de origem e devolve o primeiro objeto com collider que apanhar
+// (os sensores são ignorados, senão as moedas tapavam o raio)
+export function raycast(fisica, origem, direcao, distancia) {
+    const raio = new RAPIER.Ray({ x: origem.x, y: origem.y }, { x: direcao.x, y: direcao.y });
+    const hit = fisica.castRay(raio, distancia, true, RAPIER.QueryFilterFlags.EXCLUDE_SENSORS);
+    if (!hit) return null;
+    return objetosPorCollider.get(hit.collider.handle) ?? null;
 }
 
 export function sincronizarFisica(scene) {
