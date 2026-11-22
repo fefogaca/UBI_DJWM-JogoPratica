@@ -2,6 +2,13 @@ import * as THREE from 'three';
 
 // Desenha as caixas de colisão (colliders) a verde
 export class DebugFisica {
+    static #raios = [];
+
+    // a direção também dá o comprimento do raio
+    static desenharRaio(origem, direcao) {
+        DebugFisica.#raios.push(origem.x, origem.y, origem.x + direcao.x, origem.y + direcao.y);
+    }
+
     constructor(scene, fisica) {
         this.fisica = fisica;
         this.linhas = new THREE.LineSegments(
@@ -13,9 +20,13 @@ export class DebugFisica {
         scene.add(this.linhas);
     }
 
+    fixedUpdate() {
+        DebugFisica.#raios = []; // os raios voltam a ser desenhados em cada passo fixo
+    }
+
     update() {
         if (!this.linhas.visible) return;
-        const { vertices } = this.fisica.debugRender(); // [x0, y0, x1, y1, ...]
+        const vertices = [...this.fisica.debugRender().vertices, ...DebugFisica.#raios];
         const posicoes = new Float32Array((vertices.length / 2) * 3);
         for (let i = 0, j = 0; i < vertices.length; i += 2, j += 3) {
             posicoes[j] = vertices[i];

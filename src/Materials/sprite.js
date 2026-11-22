@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export const PIXEIS_POR_UNIDADE = 100;
+export const PIXEIS_POR_UNIDADE = 100; // 100 píxeis da imagem = 1 unidade no jogo
 
 const loader = new THREE.TextureLoader();
 

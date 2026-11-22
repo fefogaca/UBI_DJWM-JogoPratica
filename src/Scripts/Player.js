@@ -1,6 +1,8 @@
 import { Input } from './Input.js';
 import { SceneManager } from './SceneManager.js';
 import { Time } from './Time.js';
+import { destruirObjeto } from './Fisica.js';
+import { ScoreManager } from './ScoreManager.js';
 
 const CORACAO_VAZIO = 'assets/Imagens/Objetos/coracaoVazio.svg';
 const TEMPO_MORTE = 1.2; // segundos da animação de morrer antes do respawn
@@ -62,6 +64,11 @@ export class Player {
         const andar = Input.getButton('Walk') ? 0.5 : 1;
         this.#horizontal = Input.getAxis('Horizontal') * andar;
 
+        // vira a imagem para o lado para onde anda
+        if (this.#horizontal !== 0) {
+            this.object.scale.x = Math.abs(this.object.scale.x) * Math.sign(this.#horizontal);
+        }
+
         if (jump && !this.#jumpPressed) {
             if (this.#grounded) {
                 this.#playerRb.applyImpulse({ x: 0, y: this.jumpPower }, true);
@@ -85,17 +92,40 @@ export class Player {
             this.#grounded = true;
             this.#canDoubleJump = false;
             this.#lastPlatform = other;
-        } else if (other.userData.tag === 'limit') {
+        } else if (other.userData.tag === 'limit' || other.userData.tag === 'trap') {
             this.#perderVida();
+        } else if (other.userData.tag === 'enemy' && !this.#isDead) {
+            if (this.#caiuEmCima(other)) this.#pisarInimigo(other);
+            else this.#perderVida();
         }
     }
 
     onTriggerEnter(other) {
-        if (other.userData.tag !== 'checkpoint') return;
-        if (this.#checkpoint === other.position) return;
+        if (other.userData.tag === 'box') {
+            destruirObjeto(other);
+        } else if (other.userData.tag === 'checkpoint' && this.#checkpoint !== other.position) {
+            this.#checkpoint = other.position;
+            other.material.color.set(0x9dff9d); // fica verde quando é ativado
+        }
+    }
 
-        this.#checkpoint = other.position;
-        other.material.color.set(0x9dff9d); // fica verde quando é ativado
+    // compara os pés do jogador com o topo do inimigo
+    #caiuEmCima(inimigo) {
+        const meu = this.object.userData.collider;
+        const dele = inimigo.userData.collider;
+        const pes = meu.translation().y - meu.halfExtents().y;
+        const topo = dele.translation().y + dele.halfExtents().y;
+        return pes >= topo - 0.15;
+    }
+
+    #pisarInimigo(inimigo) {
+        destruirObjeto(inimigo);
+        ScoreManager.addPoints(20);
+
+        this.#playerRb.setLinvel({ x: this.#playerRb.linvel().x, y: 0 }, true);
+        this.#playerRb.applyImpulse({ x: 0, y: this.jumpPower / 2 }, true);
+        this.#grounded = false;
+        this.#canDoubleJump = true;
     }
 
     #perderVida() {
