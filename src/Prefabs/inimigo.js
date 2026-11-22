@@ -2,7 +2,6 @@ import { criarSprite } from '../Materials/sprite.js';
 import { Enemy } from '../Scripts/Enemy.js';
 import { adicionarBoxCollider, adicionarRigidbodyCinematico } from '../Scripts/Fisica.js';
 
-// esqueleto que patrulha uma plataforma
 export async function criarInimigo(fisica, x, y) {
     const inimigo = await criarSprite('assets/Imagens/Objetos/esqueleto.png');
     inimigo.name = 'Enemy';

@@ -14,7 +14,6 @@ export class Animator {
         this.#changeState(Object.keys(controller.states)[0]);
     }
 
-    // ex.: setFloat('speed', 1)
     setFloat(name, value) {
         this.parameters[name] = value;
     }
@@ -50,7 +49,7 @@ export class Animator {
         if (transition.condition === 'greater') return value > transition.value;
         if (transition.condition === 'less') return value < transition.value;
         if (transition.condition === 'equals') return value === transition.value;
-        return false; // sem condição nunca acontece
+        return false;
     }
 
     #changeState(name) {

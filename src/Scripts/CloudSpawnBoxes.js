@@ -26,7 +26,7 @@ export class CloudSpawnBoxes {
         const down = new THREE.Vector3(0, -1, 0);
         const hit = raycast(this.physics, this.object.position, down, 10);
 
-        // o raio para no primeiro objeto, se houver uma plataforma pelo meio não vê o jogador
+        // se houver uma plataforma pelo meio o raio para nela
         if (hit !== null && hit.userData.tag === 'player') {
             this.#hasTargetedPlayer = true;
 

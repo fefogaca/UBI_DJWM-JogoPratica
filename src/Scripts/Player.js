@@ -122,7 +122,6 @@ export class Player {
         destruirObjeto(inimigo);
         ScoreManager.addPoints(20);
 
-        // pequeno salto por cima do inimigo
         this.#playerRb.setLinvel({ x: this.#playerRb.linvel().x, y: 0 }, true);
         this.#playerRb.applyImpulse({ x: 0, y: this.jumpPower / 2 }, true);
         this.#grounded = false;

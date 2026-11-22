@@ -38,7 +38,6 @@ export class Enemy {
         // a imagem olha para a esquerda, com -1 fica virada para a direita
         this.object.scale.x = this.isMovingLeft ? 1 : -1;
 
-        // o rigidbody (e o collider) acompanham o objeto
         this.object.userData.rigidBody?.setNextKinematicTranslation({
             x: this.object.position.x,
             y: this.object.position.y,

@@ -117,8 +117,7 @@ mundo.add(...decoracoes);
 const checkpoint = await criarCheckpoint(fisica, 11.8, sobrePlataforma(1.4, 0.88));
 mundo.add(checkpoint);
 
-// Inimigos. Os pontos de patrulha são filhos da plataforma e só entram depois dos
-// colliders estarem feitos, senão a caixa da plataforma ficava maior
+// os pontos de patrulha só entram depois dos colliders, senão a plataforma fica com a caixa maior
 const plat3 = chao.getObjectByName('Plat3');
 const plat3Ponto1 = criarPontoPatrulha('Checkpoint1', -1.6, 0.9);
 const plat3Ponto2 = criarPontoPatrulha('Checkpoint2', 1.6, 0.9);
@@ -159,7 +158,7 @@ scene.add(level1Manager);
 const player = await criarSprite('assets/Imagens/Jogador/parado1.png');
 player.name = 'Player';
 player.userData.tag = 'player';
-// o boneco não está ao centro da imagem, assim fica e pode virar sem sair do collider
+// centra o boneco na imagem para poder virar sem sair do collider
 player.geometry.translate(player.geometry.parameters.width * 0.22, 0, 0);
 player.scale.set(0.5, 0.5, 1);
 player.position.set(0, 0, 2);
@@ -187,8 +186,10 @@ gameManager.pauseMenu = document.querySelector('#pauseMenu');
 gameManager.music = new Audio('assets/Sons/musicaDeFundo.mp3');
 gameManager.music.volume = 0.4;
 
+const debugFisica = new DebugFisica(scene, fisica);
+
 const scripts = [
-    new DebugFisica(scene, fisica),
+    debugFisica,
     playerScript,
     playerAnimator,
     new ScoreManager(document.querySelector('#scoreValue')),
@@ -221,8 +222,17 @@ gui.add(gameManager, 'isPaused')
     .name('Em pausa')
     .listen()
     .onChange((pausado) => (pausado ? gameManager.pauseGame() : gameManager.resumeGame()));
-gui.add(playerAnimator, 'currentState').name('Estado').listen();
-gui.add(playerAnimator.parameters, 'speed', 0, 1, 0.01).listen();
+gui.add(debugFisica.linhas, 'visible').name('Ver colliders');
+// estado e velocidade são só para ver: readOnly em vez de disable() para não ficarem a cinzento
+function soLeitura(controller) {
+    controller.domElement.querySelector('input').readOnly = true;
+}
+gui.domElement.style.setProperty('--string-color', '#ffffff'); // texto a branco em vez de verde
+
+soLeitura(gui.add(playerAnimator, 'currentState').name('Estado').listen());
+
+const info = { velocidade: '0.0' }; // atualizado no ciclo de jogo
+soLeitura(gui.add(info, 'velocidade').name('Velocidade atual').listen());
 
 const PASSO_FIXO = 1 / 50; // 50 vezes por segundo
 fisica.timestep = PASSO_FIXO;
@@ -239,6 +249,7 @@ renderer.setAnimationLoop((agora) => {
 
     for (const script of scripts) script.update?.(dt);
 
+    // a física anda em passos fixos
     acumulador += dt;
     while (acumulador >= PASSO_FIXO) {
         for (const script of scripts) script.fixedUpdate?.(PASSO_FIXO);
@@ -248,6 +259,8 @@ renderer.setAnimationLoop((agora) => {
     }
 
     sincronizarFisica(scene);
+    // velocidade real do jogador na horizontal (0 quando está parado)
+    info.velocidade = Math.abs(player.userData.rigidBody.linvel().x).toFixed(1);
     for (const script of scripts) script.lateUpdate?.();
     renderer.render(scene, camera);
 });

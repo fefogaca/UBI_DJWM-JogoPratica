@@ -4,7 +4,7 @@ import * as THREE from 'three';
 export class DebugFisica {
     static #raios = [];
 
-    // desenha um raio a partir de origem, com a direção e o comprimento do vetor
+    // a direção também dá o comprimento do raio
     static desenharRaio(origem, direcao) {
         DebugFisica.#raios.push(origem.x, origem.y, origem.x + direcao.x, origem.y + direcao.y);
     }
@@ -26,7 +26,6 @@ export class DebugFisica {
 
     update() {
         if (!this.linhas.visible) return;
-        // [x0, y0, x1, y1, ...] dos colliders e dos raios
         const vertices = [...this.fisica.debugRender().vertices, ...DebugFisica.#raios];
         const posicoes = new Float32Array((vertices.length / 2) * 3);
         for (let i = 0, j = 0; i < vertices.length; i += 2, j += 3) {

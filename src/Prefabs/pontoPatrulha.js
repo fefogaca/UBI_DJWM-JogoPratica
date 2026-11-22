@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 
-// só marca uma posição para os inimigos (círculo vermelho para se ver a montar o nível)
-// chama-se pontoPatrulha porque o checkpoint.js já é a placa do respawn
+// marca uma posição para os inimigos (o checkpoint.js já é a placa do respawn)
 export function criarPontoPatrulha(nome, x, y) {
     const ponto = new THREE.Mesh(
         new THREE.CircleGeometry(0.1),
