@@ -29,6 +29,7 @@ export const Input = {
     getButton(button) {
         if (button === 'Jump') return premida('Space');
         if (button === 'Pause') return premida('Escape');
+        if (button === 'Walk') return premida('ShiftLeft', 'ShiftRight');
         return false;
     },
 };

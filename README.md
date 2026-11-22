@@ -23,7 +23,7 @@ Para gerar a versão estática: `npm run build` e `npm run preview`.
 
 ## Jogar
 
-Move com **A** / **D** ou com as setas e salta com **Espaço** (dá para fazer salto duplo). **Esc** pausa o jogo e abre o menu de pausa; a música também para.
+Move com **A** / **D** ou com as setas e salta com **Espaço** (dá para fazer salto duplo). Com **Shift** premido anda devagar. **Esc** pausa o jogo e abre o menu de pausa; a música também para.
 
 Cada moeda vale 10 pontos e a pontuação fica no `localStorage` (volta a 0 quando se começa um jogo novo pelo menu). Há 3 vidas: cair do mapa tira uma e o jogador volta à última plataforma que pisou, ou à placa de checkpoint se já lhe tiver tocado. Sem vidas, vai para o ecrã de fim de jogo.
 
@@ -34,6 +34,7 @@ Cada moeda vale 10 pontos e a pontuação fica no `localStorage` (volta a 0 quan
 | `index.html`, `nivel1.html`, `creditos.html`, `gameover.html` | Uma cena por página |
 | `src/Scripts/SceneManager.js` | Troca de cena |
 | `src/Scripts/Player.js`, `Input.js` | Movimento, vidas, respawn e checkpoint |
+| `src/Scripts/Animator.js`, `src/Animation/` | Animações do jogador (parado, andar, correr, saltar, morrer) |
 | `src/Scripts/GameManager.js`, `Time.js` | Pausa, menu de pausa e música |
 | `src/Scripts/Level1Manager.js`, `Clouds.js` | Cria as nuvens a partir dos prefabs e mexe-as |
 | `src/Scripts/Fisica.js` | Corpos, colisões e sensores (Rapier) |
